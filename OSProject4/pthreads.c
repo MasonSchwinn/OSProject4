@@ -5,7 +5,7 @@
 
 #define NUM_THREADS 4
 #define FILE_SIZE 100 // number of lines in the file 
-#define LINE_LEN 100 // length of each line in the file
+#define LINE_LEN 1025 // length of each line in the file
 
 pthread_mutex_t mutexsum;			// mutex for max_char
 char char_array[FILE_SIZE][LINE_LEN];
@@ -68,7 +68,7 @@ void print_results()
     }
 }
 
-main() {
+int main() {
 	int i, rc;
 	pthread_t threads[NUM_THREADS];
 	pthread_attr_t attr;
@@ -104,4 +104,6 @@ main() {
 	pthread_mutex_destroy(&mutexsum);
 	printf("Main: program completed. Exiting.\n");
 	pthread_exit(NULL);
+
+    return 0;
 }
