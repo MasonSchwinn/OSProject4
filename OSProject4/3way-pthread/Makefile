@@ -17,7 +17,7 @@ CC        = mpicc
 # Modify TOPDIR if you use your own include files and library files
 #
 
-PROGRAM   = hello			# name of the binary
+PROGRAM   = PTHREADS			# name of the binary
 SRCS      = pthreads.c		# source file
 OBJS      = $(SRCS:.c=.o)		# object file
 

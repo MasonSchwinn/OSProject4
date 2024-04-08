@@ -4,7 +4,7 @@
 #include <string.h>
 
 #define NUM_THREADS 4
-#define FILE_SIZE 100 // number of lines in the file 
+#define FILE_SIZE 100000 // number of lines in the file 
 #define LINE_LEN 1025 // length of each line in the file
 
 pthread_mutex_t mutexsum;			// mutex for max_char
