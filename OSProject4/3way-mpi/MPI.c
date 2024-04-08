@@ -3,9 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-//#define NUM_THREADS 4
-int NUM_THREADS;
-
+#define NUM_THREADS 4
 #define FILE_SIZE 2000000
 #define LINE_LEN 1025
 #define ALPHABET_SIZE 26
@@ -65,7 +63,7 @@ void print_results()
     }
 }
 
-main(int argc, char* argv[]) 
+int main(int argc, char* argv[]) 
 {
 	int i, rc;
 	int numtasks, rank;
@@ -81,7 +79,6 @@ main(int argc, char* argv[])
         MPI_Comm_size(MPI_COMM_WORLD,&numtasks);
         MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 
-	NUM_THREADS = numtasks;
 	printf("size = %d rank = %d\n", numtasks, rank);
 	fflush(stdout);
 
@@ -92,7 +89,7 @@ main(int argc, char* argv[])
 	
 	max_char(&rank);
 
-	// MPI_Reduce(local_char_count, char_counts, ALPHABET_SIZE, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+	MPI_Reduce(char_array, max_char_array, ALPHABET_SIZE, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
 	if ( rank == 0 ) {
 		print_results();
