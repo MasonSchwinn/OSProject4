@@ -1,13 +1,13 @@
-#!/bin/bash -l
-#SBATCH --job-name=pthreads
+#!/bin/bash
 
-#SBATCH --mem-per-cpu=4G   # Memory per core, use --mem= for memory per node
-#SBATCH --time=4-04:00:00   # Use the form DD-HH:MM:SS
-#SBATCH --nodes=20
-#SBATCH --ntasks-per-node=4
-#SBATCH --constraint=moles
+cat <<EOF > job_script.sh
+#!/bin/sh
+hostname
+./PTHREADS
+EOF
 
-#SBATCH --mail-user=mschwinn@ksu.edu
-#SBATCH --mail-type=ALL   # same as =BEGIN,FAIL,END
+chmod u+x job_script.sh
 
-mpirun -np $SLURM_NPROCS PTHREADS -o np.out
+sbatch --constraint=moles --time=24:00:00 --mem-per-cpu=4G --cpus-per-task=1 --ntasks=1 --nodes=1 job_script.sh
+sbatch --constraint=moles --time=24:00:00 --mem-per-cpu=4G --cpus-per-task=2 --ntasks=1 --nodes=1 job_script.sh
+sbatch --constraint=moles --time=24:00:00 --mem-per-cpu=4G --cpus-per-task=4 --ntasks=1 --nodes=1 job_script.sh

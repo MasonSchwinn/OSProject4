@@ -11,7 +11,10 @@
       "intelliSenseMode": "windows-gcc-x64",
       "compilerArgs": [
         ""
-      ]
+      ],
+      "browse": {
+        "databaseFilename": "/tmp/mschwinn/cpp-vscode/cpp-vscode.db"
+      }
     }
   ],
   "version": 4

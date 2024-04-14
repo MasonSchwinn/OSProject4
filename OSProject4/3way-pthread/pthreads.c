@@ -4,7 +4,7 @@
 #include <string.h>
 
 #define NUM_THREADS 4
-#define FILE_SIZE 100000 // number of lines in the file 
+#define FILE_SIZE 2000000 // number of lines in the file 
 #define LINE_LEN 1025 // length of each line in the file
 
 pthread_mutex_t mutexsum;			// mutex for max_char
@@ -21,7 +21,7 @@ void read_file() {
         return;
     }
 
-    for(int i = 1; i < FILE_SIZE; i++) {
+    for(int i = 0; i < FILE_SIZE; i++) {
         if (fgets(str, LINE_LEN, file) == NULL){
             break;
         }
@@ -64,7 +64,9 @@ void print_results()
 
     // then print out the totals
     for ( i = 0; i < FILE_SIZE; i++ ) {
-        printf(" %d: %d\n", i, max_char_array[i]);
+        if (max_char_array[i] != '0' && max_char_array[i] != '\0'){
+            printf(" %d: %d\n", i, max_char_array[i]);
+        }
     }
 }
 
