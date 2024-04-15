@@ -3,10 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define NUM_THREADS 4
+//#define NUM_THREADS 4
+int NUM_THREADS;
+
 #define FILE_SIZE 2000000
 #define LINE_LEN 1025
-#define ALPHABET_SIZE 26
 
 char char_array[FILE_SIZE][LINE_LEN];
 int max_char_array[FILE_SIZE];
@@ -20,8 +21,8 @@ void read_file() {
         return;
     }
 
-    for(int i = 1; i < FILE_SIZE; i++) {
-        if (fgets(str, LINE_LEN, file) == NULL){
+    for(int i = 0; i < FILE_SIZE; i++) { // Start from index 0
+        if (fgets(str, LINE_LEN, file) == NULL) {
             break;
         }
         strcpy(char_array[i], str);
@@ -30,26 +31,22 @@ void read_file() {
     fclose(file);
 }
 
-void *max_char(int *myID) {
-    char currChar, theChar;
+void max_char(int *myID) {
+    char currChar, theChar = 0;
     int array[FILE_SIZE];
 
-    int startPos = ((int) myID) * (FILE_SIZE / NUM_THREADS);
-    int endPos = startPos + (FILE_SIZE / NUM_THREADS);
+    int startPos = ((*myID) * FILE_SIZE) / NUM_THREADS;
+    int endPos = ((*myID + 1) * FILE_SIZE) / NUM_THREADS;
 
     for (int i = startPos; i < endPos; i++) {
+        theChar = 0; // Initialize theChar
         for (int j = 0; j < LINE_LEN; j++) {
             currChar = char_array[i][j];
             if ((int)theChar < (int)currChar) {
                 theChar = currChar;
             }
         }
-        array[i] = ((int)theChar);
-        theChar = '0';
-    }
-
-    for(int i = 0; i < FILE_SIZE; i++) {
-        max_char_array[i] += array[i];
+        max_char_array[i] = ((int)theChar);
     }
 }
 
@@ -59,46 +56,46 @@ void print_results()
 
     // then print out the totals
     for ( i = 0; i < FILE_SIZE; i++ ) {
-        printf(" %d: %d\n", i, max_char_array[i]);
+        if (max_char_array[i] != '0' && max_char_array[i] != '\0'){
+            printf(" %d: %d\n", i, max_char_array[i]);
+        }
     }
 }
 
 int main(int argc, char* argv[]) 
 {
-	int i, rc;
-	int numtasks, rank;
-	MPI_Status Status;
+    int rc;
+    int numtasks, rank;
+    MPI_Status Status;
 
+    rc = MPI_Init(&argc,&argv);
+    if (rc != MPI_SUCCESS) {
+        printf ("Error starting MPI program. Terminating.\n");
+        MPI_Abort(MPI_COMM_WORLD, rc);
+    }
 
-	rc = MPI_Init(&argc,&argv);
-	if (rc != MPI_SUCCESS) {
-	  printf ("Error starting MPI program. Terminating.\n");
-          MPI_Abort(MPI_COMM_WORLD, rc);
-        }
+    MPI_Comm_size(MPI_COMM_WORLD,&numtasks);
+    MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 
-        MPI_Comm_size(MPI_COMM_WORLD,&numtasks);
-        MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+    NUM_THREADS = numtasks;
+    printf("size = %d rank = %d\n", numtasks, rank);
+    fflush(stdout);
 
-	printf("size = %d rank = %d\n", numtasks, rank);
-	fflush(stdout);
+    if (rank == 0) {
+        read_file();
+    }
 
-	if ( rank == 0 ) {
-		read_file();
-	}
-	MPI_Bcast(char_array, FILE_SIZE * LINE_LEN, MPI_CHAR, 0, MPI_COMM_WORLD);
-	
-	max_char(&rank);
+    MPI_Bcast(char_array, FILE_SIZE * LINE_LEN, MPI_CHAR, 0, MPI_COMM_WORLD);
 
-	MPI_Reduce(char_array, max_char_array, ALPHABET_SIZE, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+    max_char(&rank);
 
-	if ( rank == 0 ) {
-		print_results();
-	}
+    if (rank == 0) {
+        print_results();
+    }
 
-	MPI_Finalize();
+    MPI_Finalize();
 
-	printf("Main: program completed. Exiting.\n");
+    printf("Main: program completed. Exiting.\n");
 
-	return 0;
+    return 0;
 }
-
