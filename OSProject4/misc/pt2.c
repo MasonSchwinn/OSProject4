@@ -87,7 +87,6 @@ main(int argc, char* argv[])
 	int numtasks, rank;
 	MPI_Status Status;
 
-
 	rc = MPI_Init(&argc,&argv);
 	if (rc != MPI_SUCCESS) {
 	  printf ("Error starting MPI program. Terminating.\n");

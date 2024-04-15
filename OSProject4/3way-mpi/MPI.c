@@ -36,7 +36,12 @@ void max_char(int *myID) {
     int array[FILE_SIZE];
 
     int startPos = ((*myID) * FILE_SIZE) / NUM_THREADS;
-    int endPos = ((*myID + 1) * FILE_SIZE) / NUM_THREADS;
+    int endPos = (((*myID) + 1) * FILE_SIZE) / NUM_THREADS;
+
+    // Adjust endPos for the last thread
+    if ((*myID) == NUM_THREADS - 1) {
+        endPos = FILE_SIZE;
+    }
 
     for (int i = startPos; i < endPos; i++) {
         theChar = 0; // Initialize theChar
