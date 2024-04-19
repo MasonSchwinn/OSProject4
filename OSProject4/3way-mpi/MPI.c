@@ -38,11 +38,6 @@ void max_char(int *myID) {
     int startPos = ((*myID) * FILE_SIZE) / NUM_THREADS;
     int endPos = (((*myID) + 1) * FILE_SIZE) / NUM_THREADS;
 
-    // Adjust endPos for the last thread
-    if ((*myID) == NUM_THREADS - 1) {
-        endPos = FILE_SIZE;
-    }
-
     for (int i = startPos; i < endPos; i++) {
         theChar = 0; // Initialize theChar
         for (int j = 0; j < LINE_LEN; j++) {
@@ -63,6 +58,8 @@ void print_results()
     for ( i = 0; i < FILE_SIZE; i++ ) {
         if (max_char_array[i] != '0' && max_char_array[i] != '\0'){
             printf(" %d: %d\n", i, max_char_array[i]);
+        } else {
+            printf("ERR\n");
         }
     }
 }
@@ -90,7 +87,12 @@ int main(int argc, char* argv[])
         read_file();
     }
 
-    MPI_Bcast(char_array, FILE_SIZE * LINE_LEN, MPI_CHAR, 0, MPI_COMM_WORLD);
+    // Broadcast the char_array using non-blocking communication
+    MPI_Request request;
+    MPI_Ibcast(char_array, FILE_SIZE * LINE_LEN, MPI_CHAR, 0, MPI_COMM_WORLD, &request);
+
+    // Wait for the broadcast to complete
+    MPI_Wait(&request, &Status);
 
     max_char(&rank);
 
@@ -100,7 +102,9 @@ int main(int argc, char* argv[])
 
     MPI_Finalize();
 
-    printf("Main: program completed. Exiting.\n");
-
+    if (rank == 0) {
+        printf("Main: program completed. Exiting.\n");
+    }
+    
     return 0;
 }
