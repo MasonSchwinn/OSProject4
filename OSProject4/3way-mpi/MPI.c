@@ -3,41 +3,28 @@
 #include <stdlib.h>
 #include <string.h>
 
-//#define NUM_THREADS 4
-int NUM_THREADS;
-
-#define FILE_SIZE 2000000
+#define FILE_SIZE 1000000
 #define LINE_LEN 1025
 
 char char_array[FILE_SIZE][LINE_LEN];
 int max_char_array[FILE_SIZE];
 
-void read_file() {
+void max_char(int startPos, int endPos) {
     char str[LINE_LEN];
     FILE *file = fopen("/homes/dan/625/wiki_dump.txt", "r");
-
     if (file == NULL) {
         perror("error");
         return;
     }
-
-    for(int i = 0; i < FILE_SIZE; i++) { // Start from index 0
+    for(int i = 0; i < FILE_SIZE; i++) {
         if (fgets(str, LINE_LEN, file) == NULL) {
             break;
         }
         strcpy(char_array[i], str);
     }
-
     fclose(file);
-}
 
-void max_char(int *myID) {
-    char currChar, theChar = 0;
-    int array[FILE_SIZE];
-
-    int startPos = ((*myID) * FILE_SIZE) / NUM_THREADS;
-    int endPos = (((*myID) + 1) * FILE_SIZE) / NUM_THREADS;
-
+    char currChar, theChar;
     for (int i = startPos; i < endPos; i++) {
         theChar = 0; // Initialize theChar
         for (int j = 0; j < LINE_LEN; j++) {
@@ -47,20 +34,6 @@ void max_char(int *myID) {
             }
         }
         max_char_array[i] = ((int)theChar);
-    }
-}
-
-void print_results()
-{
-    int i,j = 0;
-
-    // then print out the totals
-    for ( i = 0; i < FILE_SIZE; i++ ) {
-        if (max_char_array[i] != '0' && max_char_array[i] != '\0'){
-            printf(" %d: %d\n", i, max_char_array[i]);
-        } else {
-            printf("ERR\n");
-        }
     }
 }
 
@@ -79,32 +52,26 @@ int main(int argc, char* argv[])
     MPI_Comm_size(MPI_COMM_WORLD,&numtasks);
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 
-    NUM_THREADS = numtasks;
+    int startPos = (rank) * (FILE_SIZE / numtasks);
+    int endPos = (rank + 1) * (FILE_SIZE / numtasks);
+    
     printf("size = %d rank = %d\n", numtasks, rank);
-    fflush(stdout);
+
+    max_char(startPos, endPos);
+
+    MPI_Allreduce(MPI_IN_PLACE, max_char_array, FILE_SIZE, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
 
     if (rank == 0) {
-        read_file();
-    }
-
-    // Broadcast the char_array using non-blocking communication
-    MPI_Request request;
-    MPI_Ibcast(char_array, FILE_SIZE * LINE_LEN, MPI_CHAR, 0, MPI_COMM_WORLD, &request);
-
-    // Wait for the broadcast to complete
-    MPI_Wait(&request, &Status);
-
-    max_char(&rank);
-
-    if (rank == 0) {
-        print_results();
-    }
+        for (int i = 0; i < FILE_SIZE; i++ ) {
+            if (max_char_array[i] != '0' && max_char_array[i] != '\0'){
+                printf(" %d: %d\n", i, max_char_array[i]);
+            } else {
+                printf("ERR\n");
+            }
+        }
+    }    
 
     MPI_Finalize();
-
-    if (rank == 0) {
-        printf("Main: program completed. Exiting.\n");
-    }
     
     return 0;
 }
