@@ -3,10 +3,10 @@
 #include <stdlib.h>
 
 #define NUM_THREADS 4
-#define FILE_SIZE 1000000 // number of lines in the file 
+#define FILE_SIZE 2000000 // number of lines in the file 
 #define LINE_LEN 1025 // length of each line in the file
 
-char char_array[FILE_SIZE][LINE_LEN];
+char char_array[FILE_SIZE][LINE_LEN+1];
 int max_char_array[FILE_SIZE];
 
 void read_file();
@@ -24,7 +24,7 @@ void read_file() {
 
     int i = 0;
     while (fgets(str, LINE_LEN, file) != NULL && i < FILE_SIZE) {
-        strcpy(char_array[i], str);
+        snprintf(char_array[i], LINE_LEN, "%s", str);
         i++;
     }
 
@@ -42,13 +42,15 @@ void max_char(int myID) {
                 max_char = (int)char_array[i][j];
             }
         }
-        max_char_array[i] = max_char;
+        max_char_array[i] = (int)max_char;
     }
 }
 
 void print_results() {
     for (int i = 0; i < FILE_SIZE; i++) {
-        printf("%d: %d\n", i, max_char_array[i]);
+        if (max_char_array[i] != 0) {
+            printf("%d: %d\n", i, max_char_array[i]);
+        }
     }
 }
 
