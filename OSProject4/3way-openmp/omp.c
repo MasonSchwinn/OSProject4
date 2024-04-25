@@ -1,7 +1,6 @@
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #define NUM_THREADS 4
 #define FILE_SIZE 1000000 // number of lines in the file 
@@ -23,52 +22,38 @@ void read_file() {
         return;
     }
 
-    for(int i = 0; i < FILE_SIZE; i++) {
-        if (fgets(str, LINE_LEN, file) == NULL){
-            break;
-        }
+    int i = 0;
+    while (fgets(str, LINE_LEN, file) != NULL && i < FILE_SIZE) {
         strcpy(char_array[i], str);
-    }
-
-    for (int i = 0; i < FILE_SIZE; i++ ) {
-        max_char_array[i] = 0;
+        i++;
     }
 
     fclose(file);
 }
 
 void max_char(int myID) {
-    char currChar, theChar;
-
-    int startPos = ((myID) * FILE_SIZE) / NUM_THREADS;
-    int endPos = (((myID) + 1) * FILE_SIZE) / NUM_THREADS;
+    int startPos = (myID * FILE_SIZE) / NUM_THREADS;
+    int endPos = ((myID + 1) * FILE_SIZE) / NUM_THREADS;
 
     for (int i = startPos; i < endPos; i++) {
-        for (int j = 0; j < LINE_LEN; j++) {
-            currChar = char_array[i][j];
-            if ((int)theChar < (int)currChar) {
-                theChar = currChar;
+        int max_char = 0;
+        for (int j = 0; char_array[i][j] != '\0'; j++) {
+            if ((int)char_array[i][j] > max_char) {
+                max_char = (int)char_array[i][j];
             }
         }
-        max_char_array[i] = ((int)theChar);
-        theChar = '0';
+        max_char_array[i] = max_char;
     }
 }
 
-void print_results()
-{
-    int i,j = 0;
-
-    // then print out the totals
-    for ( i = 0; i < FILE_SIZE; i++ ) {
-        printf(" %d: %d\n", i, max_char_array[i]);
+void print_results() {
+    for (int i = 0; i < FILE_SIZE; i++) {
+        printf("%d: %d\n", i, max_char_array[i]);
     }
 }
 
-int main() 
-{
+int main() {
     read_file();
-
     omp_set_num_threads(NUM_THREADS);
 
     #pragma omp parallel 
@@ -77,9 +62,7 @@ int main()
     }
 
     print_results();
-
-	printf("Main: program completed. Exiting.\n");
+    printf("Main: program completed. Exiting.\n");
 
     return 0;
 }
-
