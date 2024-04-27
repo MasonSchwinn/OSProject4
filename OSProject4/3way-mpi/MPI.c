@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define FILE_SIZE 2000000 // number of lines to be read from the file
+#define FILE_SIZE 1000000 // number of lines to be read from the file
 #define LINE_LEN 1025 // length of the lines in the file
 
 char char_array[FILE_SIZE][LINE_LEN]; 
