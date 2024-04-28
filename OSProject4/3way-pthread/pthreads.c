@@ -29,7 +29,7 @@ void read_file() {
         if (fgets(str, LINE_LEN, file) == NULL){
             break;
         }
-        strcpy(char_array[i], str);
+        snprintf(char_array[i], LINE_LEN, "%s", str);
     }
 
     fclose(file);
