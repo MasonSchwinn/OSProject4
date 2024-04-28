@@ -11,6 +11,10 @@ pthread_mutex_t mutexsum;			// mutex for max_char
 char char_array[FILE_SIZE][LINE_LEN];
 int max_char_array[FILE_SIZE];
 
+
+/*
+* Reads in the wiki_dump file into a character array
+*/
 void read_file() {
     pthread_mutex_init(&mutexsum, NULL);
     char str[LINE_LEN];
@@ -31,6 +35,11 @@ void read_file() {
     fclose(file);
 }
 
+
+/*
+* Calculates the max char value of each line while utilizing mutex locks.
+* \param myID given ID for calculating start and end positions
+*/
 void *max_char(int *myID) {
     char currChar, theChar;
     int array[FILE_SIZE];
@@ -58,6 +67,10 @@ void *max_char(int *myID) {
     pthread_exit(NULL);
 }
 
+
+/*
+* Prints the values of the max_char_array
+*/
 void print_results()
 {
     int i,j = 0;
@@ -70,6 +83,11 @@ void print_results()
     }
 }
 
+
+/*
+* Main function initializes pthreads, calls read_file, creates threads 
+* based on number of given threads, prints results and then destroys the mutex
+*/
 int main() {
 	int i, rc;
 	pthread_t threads[NUM_THREADS];

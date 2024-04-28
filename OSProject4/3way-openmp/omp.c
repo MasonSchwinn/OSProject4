@@ -13,6 +13,10 @@ void read_file();
 void max_char(int myID);
 void print_results();
 
+
+/*
+* Reads in the wiki_dump file into a character array
+*/
 void read_file() {
     char str[LINE_LEN];
     FILE *file = fopen("/homes/dan/625/wiki_dump.txt", "r");
@@ -31,6 +35,11 @@ void read_file() {
     fclose(file);
 }
 
+
+/*
+* Calculates the max char value of each line
+* \param myID given ID for calculating start and end positions
+*/
 void max_char(int myID) {
     int startPos = (myID * FILE_SIZE) / NUM_THREADS;
     int endPos = ((myID + 1) * FILE_SIZE) / NUM_THREADS;
@@ -46,6 +55,10 @@ void max_char(int myID) {
     }
 }
 
+
+/*
+* Prints the values of the max_char_array
+*/
 void print_results() {
     for (int i = 0; i < FILE_SIZE; i++) {
         if (max_char_array[i] != 0) {
@@ -54,6 +67,10 @@ void print_results() {
     }
 }
 
+
+/*
+* Utilizes openMP for running the max_char function on multiple parallel threads
+*/
 int main() {
     read_file();
     omp_set_num_threads(NUM_THREADS);
